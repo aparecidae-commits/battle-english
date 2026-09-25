@@ -16,7 +16,9 @@ function draw(){p.style.left=x+'%';p.style.top=y+'%'}function stats(){hp=Math.ma
 function fmt(n){return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
 function tick(){let s=Math.floor((Date.now()-startTime)/1000);$('#time').textContent=fmt(s)}
 $('#go').onclick=()=>{playerName=$('#name').value.trim()||'Player';team=$('#team').value.trim();$('#start').classList.add('hidden');startTime=Date.now();timer=setInterval(tick,1000);renderRank()}
-document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(modal.classList.contains('on'))return;let d=b.dataset.d;if(d==='u')y-=4.5;if(d==='d')y+=4.5;if(d==='l')x-=4.5;if(d==='r')x+=4.5;x=Math.max(3,Math.min(97,x));y=Math.max(5,Math.min(94,y));draw()});
+function move(d){if(modal.classList.contains('on')||!$('#start').classList.contains('hidden'))return;if(d==='u')y-=4.5;if(d==='d')y+=4.5;if(d==='l')x-=4.5;if(d==='r')x+=4.5;x=Math.max(3,Math.min(97,x));y=Math.max(5,Math.min(94,y));draw()}
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>move(b.dataset.d));
+document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();const dirs={arrowup:'u',w:'u',arrowdown:'d',s:'d',arrowleft:'l',a:'l',arrowright:'r',d:'r'};if(dirs[k]){e.preventDefault();move(dirs[k]);}else if((k==='e'||k==='enter'||k===' ')&&$('#start').classList.contains('hidden')){e.preventDefault();$('#act').click();}});
 function near(){let best=null,bd=99;for(let [k,v] of Object.entries(spots)){let d=Math.hypot(x-v[0],y-v[1]);if(d<13&&d<bd){best=k;bd=d}}return best}
 function q(title,story,question,opts,correct,win){$('#mt').textContent=title;$('#story').textContent=story;$('#mq').textContent=question;let a=$('#answers');a.innerHTML='';opts.forEach((o,i)=>{let b=document.createElement('button');b.textContent=o;b.onclick=()=>{if(i===correct){xp+=25;log.innerHTML='<span class="ok">✔ Enigma resolvido! +25 XP</span>';modal.classList.remove('on');win();stats()}else{hp-=10;xp=Math.max(0,xp-5);log.innerHTML='<span class="danger">✖ Pista incorreta: -10 HP e -5 XP. Tente novamente.</span>';stats()}};a.appendChild(b)});modal.classList.add('on')}
 $('#close').onclick=()=>modal.classList.remove('on');
